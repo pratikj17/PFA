@@ -1,4 +1,5 @@
 import User from "../models/user.model.js";
+import bcrypt from "bcryptjs";
 
 const handleSignup = async (req, res) => {
     try {
@@ -14,10 +15,12 @@ const handleSignup = async (req, res) => {
         if (existingUserByUsername || existingUserByEmail) {
             return res.status(409).json({ error: "User already exists" });
         }
+        const salt = bcrypt.genSaltSync(10);
+        const hashedPassword = bcrypt.hashSync(password, salt);
         const newUser = await User.create({
             username,
             email,
-            password
+            password: hashedPassword
         });
 
         if(newUser) res.status(201).json({ message: "User signed up successfully", user: newUser });
