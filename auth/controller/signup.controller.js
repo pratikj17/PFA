@@ -1,5 +1,6 @@
 import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
+import { sendMailForVerification } from "../utils/mail_verification.utils.js";
 
 const handleSignup = async (req, res) => {
     try {
@@ -15,6 +16,9 @@ const handleSignup = async (req, res) => {
         if (existingUserByUsername || existingUserByEmail) {
             return res.status(409).json({ error: "User already exists" });
         }
+        const mailSent=await sendMailForVerification(email);
+        if(mailSent) console.log("mail sent to: ",email);
+        else return res.status(400).json({error:"Error in sending verification mail ensure the entered mail is correct!"});
         const salt = bcrypt.genSaltSync(10);
         const hashedPassword = bcrypt.hashSync(password, salt);
         const newUser = await User.create({
