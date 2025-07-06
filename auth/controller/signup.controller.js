@@ -1,6 +1,7 @@
 import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import { sendMailForVerification } from "../utils/mail_verification.utils.js";
+import { verifyOTP } from "../utils/cache_otp.utils.js";
 
 const handleSignup = async (req, res) => {
     try {
@@ -34,4 +35,18 @@ const handleSignup = async (req, res) => {
     }
 }
 
-export { handleSignup };
+const handleOTPVerification=async(req,res)=>{
+    try {
+        const {email,otp}=req.body;
+        const result=await verifyOTP(email,otp);
+        if(result==-1) return res.json({error: "otp has expired try again!"});
+        else if(result==0) return res.json({error: "invalid otp!"});
+        if(result==1) return res.json({message: "otp verification successful!"});
+        return res.json({"error":"error in ov!"});
+    } catch (error) {
+        console.log("Error in verifying otp!");
+        return res.status(500).json({error: `${error}`});
+    }
+}
+
+export { handleSignup, handleOTPVerification };

@@ -1,5 +1,5 @@
 import {transporter} from "../config/nodemailer.config.js";
-import cacheOTP from "./cache_otp.utils.js";
+import {cacheOTP} from "./cache_otp.utils.js";
 
 const generateOTP=()=>{
     return Math.floor(100000 + Math.random() * 900000).toString();
