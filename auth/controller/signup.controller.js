@@ -2,6 +2,10 @@ import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import { sendMailForVerification } from "../utils/mail_verification.utils.js";
 import { verifyOTP } from "../utils/cache_otp.utils.js";
+import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const handleSignup = async (req, res) => {
     try {
@@ -28,7 +32,14 @@ const handleSignup = async (req, res) => {
             password: hashedPassword
         });
 
-        if(newUser) res.status(201).json({ message: "User signed up successfully", user: newUser });
+        if(newUser){
+            const token=jwt.sign(
+                { username: newUser.username, id: newUser._id },
+                process.env.JWT_SECRET,
+                {expiresIn:'1h'}
+            )
+            res.status(201).json({ message: "User signed up successfully", user: newUser });
+        }
         else res.status(500).json({message:"db error, maybe try again"});
     } catch (error) {
         res.status(500).json({ error: `An error occurred during signup,${error.message}` });
